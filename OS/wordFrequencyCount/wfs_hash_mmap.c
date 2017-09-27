@@ -36,12 +36,13 @@ WordList word_table[TABLE_SIZE];
 WordList words[MAX_WORDS];
 size_t witer = 0;
 
-inline uint64_t hash(const char * str, uint64_t mod)
+inline uint64_t hash(const char * str, size_t len, uint64_t mod)
 {
 	uint64_t res = 0;
+    size_t i = 0;
 
-	for (; *str != '\0'; ++str) {
-       res = (res + *str) * 26 % mod;
+	for (; i < len; ++i) {
+        res = (res * 27 + str[i]) % mod;
 	}
 
 	return res;
@@ -50,10 +51,9 @@ inline uint64_t hash(const char * str, uint64_t mod)
 int main(int argc, char **argv)
 {
 	int fin;
-	char word[MAX_LEN];
 	char * article, * atmp;
 	uint64_t hash_value;
-	size_t i;
+	size_t i, j;
 	WordList * wlp;
 	struct stat fstatus;
 	clock_t s, e;
@@ -74,31 +74,40 @@ int main(int argc, char **argv)
  	while ((ch = *atmp++) != '\0') {
         
         /* 过滤，将大写转成小写，去掉非字母字符 */
-        if (! isalpha(ch)) {
-            word[i++] = '\0';
-            i = 0;
-            if (word[0] == '\0') {
-                continue;
+        /* if (! isalpha(ch)) { */
+        if (! ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'))) {
+            words[witer].word[i++] = '\0';
+            if (i != 1) {
+
+                hash_value = hash(words[witer].word, i - 1, TABLE_SIZE);
+                wlp = &word_table[hash_value];
+                while (wlp->next != NULL) {
+                    /* 比较两字符串是否相等 */
+                    for (j = 0; j < i - 1; ++j) {
+                        if (wlp->next->word[j] != words[witer].word[j]) {
+                            break;
+                        }
+                    }
+                    if (j == i - 1) {
+                        ++wlp->next->num;
+                        break;
+                    }
+                    wlp = wlp->next;
+                }
+                if (wlp->next == NULL) {
+                    wlp->next = &words[witer++];
+                    wlp->next->num = 1;
+                    wlp->next->next = NULL;
+                }
+
             }
+            i = 0;
         } else {
-            word[i++] = tolower(ch);
-            continue;
-		}
-		
-		hash_value = hash(word, TABLE_SIZE);
-		wlp = &word_table[hash_value];
-		while (wlp->next != NULL) {
-			if (strcmp(wlp->next->word, word) == 0) {
-				++wlp->next->num;
-				break;
-			}
-			wlp = wlp->next;
-		}
-		if (wlp->next == NULL) {
-			wlp->next = &words[witer++];
-			wlp->next->num = 1;
-			wlp->next->next = NULL;
-			strcpy(wlp->next->word, word);
+            if (ch <= 'Z') {
+                ch += 'a' - 'A';
+            }
+             
+            words[witer].word[i++] = ch;
 		}
 	}
 
