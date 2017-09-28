@@ -52,7 +52,8 @@ int main(int argc, char **argv)
 {
 	int fin;             	/* 文件描述符 */
 	char word[MAX_LEN];     /* 存储一个单词 */
-	char * article, * atmp;
+	char * article;
+    size_t index, len;
 	struct stat fstatus;
 	clock_t s, e;           /* 记录程序运行时间 */
     int ch;
@@ -65,12 +66,13 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
+    len = fstatus.st_size;
 	/* 使用存储映射 */
-	article = (char *)mmap(0, fstatus.st_size, PROT_READ, MAP_PRIVATE, fin, 0);
-	atmp = article;
+	article = (char *)mmap(0, len, PROT_READ, MAP_PRIVATE, fin, 0);
 
 	cur = &word_tree;
- 	while ((ch = *atmp++) != '\0') {
+ 	for (index = 0; index <= len; ++index) {
+        ch = article[index];
 		
         /* if (! isalpha(ch)) { */
 		if (! ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'))) {
@@ -93,7 +95,7 @@ int main(int argc, char **argv)
 	}
 
 	/* 解除映射区 */
-	munmap(article, fstatus.st_size);
+	munmap(article, len);
 
 	e = clock();
 

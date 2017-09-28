@@ -51,9 +51,9 @@ inline uint64_t hash(const char * str, size_t len, uint64_t mod)
 int main(int argc, char **argv)
 {
 	int fin;
-	char * article, * atmp;
+	char * article;
 	uint64_t hash_value;
-	size_t i, j;
+	size_t i, j, index, len;
 	WordList * wlp;
 	struct stat fstatus;
 	clock_t s, e;
@@ -67,11 +67,13 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	article = (char *)mmap(0, fstatus.st_size, PROT_READ, MAP_PRIVATE, fin, 0);
-	atmp = article;
+    len = fstatus.st_size;
+	article = (char *)mmap(0, len, PROT_READ, MAP_PRIVATE, fin, 0);
 
 	i = 0;
- 	while ((ch = *atmp++) != '\0') {
+ 	for (index = 0; index <= len; ++index) {
+        
+        ch = article[index];
         
         /* 过滤，将大写转成小写，去掉非字母字符 */
         /* if (! isalpha(ch)) { */
@@ -121,7 +123,7 @@ int main(int argc, char **argv)
 	}
 
 	/* 解除映射区 */
-	munmap(article, fstatus.st_size);
+	munmap(article, len);
 
 	printf("%f\n", (double)(e - s) / CLOCKS_PER_SEC);
 	return 0;
