@@ -87,12 +87,12 @@ int main(int argc, char **argv)
                 wlp = &word_table[hash_value];
                 while (wlp->next != NULL) {
                     /* 比较两字符串是否相等 */
-                    for (j = 0; j < i - 1; ++j) {
+                    for (j = 0; j < i; ++j) {
                         if (wlp->next->word[j] != words[witer].word[j]) {
                             break;
                         }
                     }
-                    if (j == i - 1) {
+                    if (j == i) {
                         /* 相等，增加计数 */
                         ++wlp->next->num;
                         break;
