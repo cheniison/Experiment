@@ -3,7 +3,7 @@ Unix 环境下 C 语言编写的英文词频统计程序。分词的标准为连
 
 ## 环境
 + gcc 5.4.0
-+ GNU/Linux 4.4.0-96-generic Ubuntu 16.04.4 LTS x86_64
++ GNU/Linux 4.4.0-96-generic Ubuntu 16.04.3 LTS x86_64
 + make 4.1
 
 ## 构建
