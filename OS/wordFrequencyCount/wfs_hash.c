@@ -39,7 +39,7 @@ inline uint64_t hash(const char * str, uint64_t mod)
 	uint64_t res = 0;
 
 	for (; *str != '\0'; ++str) {
-        res = (res + *str) * 26 % mod;
+        res = (res + *str) * 27 % mod;
 	}
 
 	return res;
