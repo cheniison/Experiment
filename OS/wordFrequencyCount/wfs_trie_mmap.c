@@ -76,6 +76,7 @@ int main(int argc, char **argv)
 		
         /* if (! isalpha(ch)) { */
 		if (! ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'))) {
+            /* 不是字母，表明一个单词结束，增加当前单词的计数 */
 			if (&word_tree != cur) {
 				++cur->num;
 		   		cur = &word_tree;
@@ -83,13 +84,16 @@ int main(int argc, char **argv)
         } else {
 			/* ch = tolower(ch); */
 			if (ch <= 'Z') {
+                /* 大写转小写 */
 				ch +=  'a' - 'A';
 			} 
 			
 			if (cur->children[ch - 'a'] == NULL) {
+                /* 下一个结点不存在，分配新的结点 */
 				cur->children[ch - 'a'] = words + witer++;
 			}
 			
+            /* 移动到下一个结点 */
 			cur = cur->children[ch - 'a'];
         }
 	}

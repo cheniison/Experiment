@@ -60,11 +60,14 @@ int main(int argc, char **argv)
  	while ((ch = getc(fin)) != EOF) {
         
         if (! isalpha(ch)) {
+            /* 不是字母，单词结束 */
 			if (&word_tree != cur) {
+                /* 增加计数 */
 				++cur->num;
 		   		cur = &word_tree;
 			}
         } else {
+            /* 转小写 */
 			ch = tolower(ch);
 			
 			if (cur->children[ch - 'a'] == NULL) {

@@ -36,6 +36,7 @@ WordList word_table[TABLE_SIZE];
 WordList words[MAX_WORDS];
 size_t witer = 0;
 
+/* 哈希函数 */
 inline uint64_t hash(const char * str, size_t len, uint64_t mod)
 {
 	uint64_t res = 0;
@@ -68,6 +69,7 @@ int main(int argc, char **argv)
 	}
 
     len = fstatus.st_size;
+    /* 存储映射 */
 	article = (char *)mmap(0, len, PROT_READ, MAP_PRIVATE, fin, 0);
 
 	i = 0;
@@ -75,12 +77,12 @@ int main(int argc, char **argv)
         
         ch = article[index];
         
-        /* 过滤，将大写转成小写，去掉非字母字符 */
         /* if (! isalpha(ch)) { */
         if (! ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'))) {
             words[witer].word[i++] = '\0';
             if (i != 1) {
-
+                /* 非字母单词，单词结束 */
+                /* 计算单词哈希值 */
                 hash_value = hash(words[witer].word, i - 1, TABLE_SIZE);
                 wlp = &word_table[hash_value];
                 while (wlp->next != NULL) {
@@ -91,12 +93,14 @@ int main(int argc, char **argv)
                         }
                     }
                     if (j == i - 1) {
+                        /* 相等，增加计数 */
                         ++wlp->next->num;
                         break;
                     }
                     wlp = wlp->next;
                 }
                 if (wlp->next == NULL) {
+                    /* 新单词，分配新的结点 */
                     wlp->next = &words[witer++];
                     wlp->next->num = 1;
                     wlp->next->next = NULL;
