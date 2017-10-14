@@ -1,0 +1,11 @@
+10 6
+bread cream milk tea
+bread cream milk
+cake milk
+milk tea
+bread cake milk
+bread tea
+beer milk tea
+bread tea
+bread cream milk tea
+bread milk tea
