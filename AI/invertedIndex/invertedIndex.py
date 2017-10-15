@@ -1,10 +1,11 @@
-#/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
 from functools import reduce
 
 # 应该读入的文件
-files_name = ['files/d1.txt', 'files/d2.txt']
+files_name = list(map(lambda n: "files/d" + str(n) + ".txt" , range(1,11)))
+
 
 class Word(object):
 
