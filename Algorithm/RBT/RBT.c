@@ -56,9 +56,8 @@ static RBT_Node * RBT_rotate_right(RBT_Node * root)
     left_node->right = root;
 
     /* 改变颜色 */
-    left_node->left->color = BLACK;
-    left_node->right->color = BLACK;
-    left_node->color = RED;
+    left_node->color = root->color;
+    root->color = RED;
 
     return left_node;
 }
