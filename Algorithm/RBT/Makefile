@@ -1,5 +1,5 @@
 
-OPT=-O2
+OPT=
 STD=-std=c99
 WARN=-Wall
 DEBUG=-g

@@ -24,15 +24,25 @@ void print(const RBT * tree)
 int main(int argc, char **argv)
 {
     RBT tree;
-    int i;
+    char ch;
+    int num;
 
     tree.root = NULL;
 
-    for (i = 1; i < argc; ++i) {
-        RBT_insert(&tree, atoi(argv[i]));
+    while (scanf("%c%d", &ch, &num) != EOF) {
+        if (ch == 'i') {
+            RBT_insert(&tree, num);
+        } else if (ch == 'd') {
+            RBT_delete(&tree, num);
+        } else {
+            printf("未知操作: ch = %c num = %d\n", ch, num);
+            getchar();
+            continue;
+        }
+        print(&tree);
+        printf("\n");
+        getchar();
     }
-
-    print(&tree);
 
     RBT_clear(&tree);
 

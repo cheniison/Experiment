@@ -22,8 +22,14 @@ typedef struct {
 /* 搜索 */
 RBT_Node * RBT_search(const RBT * tree, type_t obj);
 
+/* 找出最小节点 */
+RBT_Node * RBT_get_min(const RBT * tree);
+
 /* 插入 */
 void RBT_insert(RBT * tree, type_t obj);
+
+/* 删除最小节点 */
+void RBT_delete_min(RBT * tree);
 
 /* 删除 */
 void RBT_delete(RBT * tree, type_t obj);
