@@ -16,7 +16,7 @@ for line in lines:
 
 while True:
     query = ""
-    
+
     # 接受输入
     try:
         query = input()
@@ -25,18 +25,22 @@ while True:
         exit(0)
 
     query = query.split()
-    w1 = query[0]
-    w2 = query[2]
-    op = query[1]
+
+    try:
+        w1 = query[0].lower()
+        w2 = query[2].lower()
+        op = query[1].lower()
+    except Exception as e:
+        print("输入格式有误，格式： [string] [and|or] [string]")
+        continue
 
     if not w1 in index_table or not w2 in index_table:
         print("单词不在索引表中")
         continue
-    
+
     if op == 'and':
         print(sorted(list(index_table[w1] & index_table[w2])))
     elif op == 'or':
         print(sorted(list(index_table[w1] | index_table[w2])))
     else:
         print("未知的运算符")
-

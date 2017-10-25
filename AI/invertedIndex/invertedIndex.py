@@ -34,6 +34,7 @@ for file_name in files_name:
     f_input.close()
     # 合并到单词
     words = set(reduce(lambda x,y: x+y, lines))
+    words = set(map(lambda str: str.lower(), words))
 
     for word in words:
         if word in index_table:
