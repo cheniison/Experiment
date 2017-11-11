@@ -12,13 +12,14 @@
 ### Windows
 运行示例程序，键入以下命令
 
-    python wordSeg.py
+    python main.py
 
 ### Linux
 运行事例程序，键入以下命令
 
-    python3 wordSeg.py
+    python3 main.py
 
 或者
 
-    chmod +x wordSeg.py && ./wordSeg.py
+    chmod +x main.py && ./main.py
+
