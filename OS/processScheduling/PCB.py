@@ -36,7 +36,7 @@ class PCBList(object):
                 index = i
         return self.pcb_list.pop(index)
 
-    def pop_min_priority(self):
+    def pop_max_priority(self):
         index = 0
         for i in range(0, len(self.pcb_list)):
             if self.pcb_list[i].priority < self.pcb_list[index].priority:

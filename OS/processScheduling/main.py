@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from PCB import *
+from PSM import *
+import functools
+
 
 FILE_NAME = "JOB1.TXT"
 NOPS = PCB("E", 0, 0, 0)         # 空进程
@@ -23,36 +26,45 @@ def read_data(file_name):
 
 
 def print_res(res):
+    """
+    打印结果
+    :param res: 结果集
+    :return: void
+    """
     string = ""
+    detail = list()                 # 每个进程的调度结果，格式（进程对象， 响应时间， 结束时间）
+    t = 0                           # 周转时间
     for i in res:
         for j in range(0, i[1]):
             string += i[0].name
+        if i[0] == NOPS:
+            t += i[1]
+            continue
+        flag = 0
+        for j in detail:
+            if j[0] == i[0]:
+                t += i[1]
+                j[2] = t
+                flag = 1
+                break
+        if flag == 0:
+            detail.append([i[0], t - i[0].a_time, t + i[1]])
+            t += i[1]
+
     print(string)
+    for i in detail:
+        string = ""
+        string += i[0].name
+        string += " "
+        string += "响应时间: "
+        string += str(i[1])
+        string += " "
+        string += "周转时间: "
+        string += str(i[2] - i[0].a_time)
+        print(string)
 
 
-def sjf(ps_list):
-    ps = ps_list.pop_min_e_time()
-    ps.u_time += ps.e_time
-    return ps.e_time, ps
-
-
-def rr(ps_list, t):
-    ps = ps_list.pop()
-    if ps.u_time + t >= ps.e_time:
-        t = ps.e_time - ps.u_time
-    else:
-        ps_list.append(ps)
-    ps.u_time += t
-
-    return t, ps
-
-def pf(ps_list):
-    ps = ps_list.pop_min_priority()
-    ps.u_time += ps.e_time
-    return ps.e_time, ps
-
-
-def schedule(ps_list, result):
+def schedule(ps_list, result, psm):
     """
     调度函数
     :param ps_list: 可被调度的进程列表
@@ -62,30 +74,42 @@ def schedule(ps_list, result):
         result.append([NOPS, 1])
         return 1
     else:
-        t, ps = pf(ps_list)
+        t, ps = psm(ps_list)
         result.append([ps, t])
         return t
 
 
-ps_rest, ps_num = read_data(FILE_NAME)
-ps_rest = sorted(ps_rest, key=lambda x:x.a_time)    # ps_rest: 还没有到来的进程
+# 进程调度方式
+psms = [PSM("最短作业优先（非抢占）", psm_sjf),
+        PSM("时间片轮转（时间片为1）", functools.partial(psm_rr, t=1)),
+        PSM("时间片轮转（时间片为2）", functools.partial(psm_rr, t=2)),
+        PSM("时间片轮转（时间片为3）", functools.partial(psm_rr, t=3)),
+        PSM("优先级调度", psm_pf)]
 
-ps_list = PCBList()     # ps_list: 已经到来的进程
 
-counter = 0         # 时钟
-result = list()     # 调度结果
+for psm in psms:
 
-while True:
+    ps_rest, ps_num = read_data(FILE_NAME)
+    ps_rest = sorted(ps_rest, key=lambda x: x.a_time)  # ps_rest: 还没有到来的进程
 
-    if len(ps_rest) == 0 and ps_list.empty():
-        # 当没有进程需要被调度时，退出
-        break
+    ps_list = PCBList()  # ps_list: 已经到来的进程
 
-    while len(ps_rest) != 0 and ps_rest[0].a_time <= counter:
-        # 将到达的进程放到进程队列中
-        ps_list.append(ps_rest.pop(0))
+    counter = 0  # 时钟
+    result = list()  # 调度结果
 
-    # 调度
-    counter += schedule(ps_list, result)
+    while True:
 
-print_res(result)
+        if len(ps_rest) == 0 and ps_list.empty():
+            # 当没有进程需要被调度时，退出
+            break
+
+        while len(ps_rest) != 0 and ps_rest[0].a_time <= counter:
+            # 将到达的进程放到进程队列中
+            ps_list.append(ps_rest.pop(0))
+
+        # 调度
+        counter += schedule(ps_list, result, psm.func)
+
+    print("===================")
+    print(psm.name)
+    print_res(result)
