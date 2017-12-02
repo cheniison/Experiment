@@ -8,7 +8,7 @@ import functools
 
 FILE_NAME = "JOB1.TXT"
 NOPS = PCB("E", 0, 0, 0)         # 空进程
-
+psc = NOPS                      # 当前正在执行的进程
 
 def read_data(file_name):
 
@@ -70,11 +70,15 @@ def schedule(ps_list, result, psm):
     :param ps_list: 可被调度的进程列表
     :return: 调度的时间
     """
+    global psc
+
     if ps_list.empty():
         result.append([NOPS, 1])
+        psc = NOPS
         return 1
     else:
-        t, ps = psm(ps_list)
+        t, ps = psm(psc, ps_list)
+        psc = ps
         result.append([ps, t])
         return t
 
