@@ -7,6 +7,8 @@
 /* 一行最多字符 */
 #define LINE_SIZE 1024
 /* 服务器根目录 */
-#define DOCUMENT_ROOT "/var/www/html"
+#define DOCUMENT_ROOT "/var/www/html/"
+/* uri最大长度 */
+#define URI_LEN 100
 
 #endif

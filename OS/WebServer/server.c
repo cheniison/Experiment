@@ -8,6 +8,9 @@
 #include <string.h>
 #include <signal.h>
 #include <errno.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <fcntl.h>
 #include "server.h"
 #include "rio.h"
 
@@ -17,11 +20,16 @@ int writeTo(int fd, char * string)
     return write(fd, string, strlen(string));
 }
 
-int err_dump(int fd, int status, char * err_msg)
+void err_dump(int fd, int status, char * err_msg)
 {
     char line[LINE_SIZE];
 
-
+    snprintf(line, LINE_SIZE, "HTTP/1.1 %d %s\r\n\r\n", status, err_msg);
+    writeTo(fd, line);
+    snprintf(line, LINE_SIZE, "ERROR: %d\r\n", status);
+    writeTo(fd, line);
+    snprintf(line, LINE_SIZE, "ERROR MESSAGE: %s\r\n\r\n", err_msg);
+    writeTo(fd, line);
 }
 
 void sig_int(int signo)
@@ -84,24 +92,61 @@ int open_listenfd(int port)
 }
 
 
+void handleUri(int fd, const char * uri) 
+{
+    char whole_uri[URI_LEN] = DOCUMENT_ROOT;
+    int ffd;        /* 文件描述符 */
+    struct stat f_statue;
+    char * buf;
+
+    if (uri[0] == '/') {
+        uri += 1;
+    }
+    strncat(whole_uri, uri, URI_LEN);
+
+
+    if (stat(whole_uri, &f_statue) < 0) {
+        err_dump(fd, 404, "Not Found");
+        return;
+    }
+
+    if (! S_ISREG(f_statue.st_mode)) {
+        err_dump(fd, 403, "Not Regular File");
+        return;
+    }
+
+    if ((ffd = open(whole_uri, O_RDONLY)) < 0) {
+        err_dump(fd, 403, "Forbidden");
+        return;
+    }
+
+    buf = (char *)mmap((void *)0, f_statue.st_size, PROT_READ, MAP_PRIVATE, ffd, 0);
+
+    if (buf == MAP_FAILED) {
+        err_dump(fd, 501, "Mmap Error");
+        return;
+    }
+
+    writeTo(fd, "HTTP/1.1 200 OK\r\n\r\n");
+    writeTo(fd, buf);
+}
+
 void doit(int fd)
 {
     char line[LINE_SIZE];
-    char method[10], uri[100], version[10];
+    char method[10], uri[URI_LEN], version[10];
     rio_t rio;
 
     rio_init(&rio, fd);
     
     if (rio_readline(&rio, line, LINE_SIZE) <= 0)
     {
-        writeTo(fd, "HTTP/1.1 400 Bad Request\r\n");
-        writeTo(fd, "\r\n");
+        err_dump(fd, 400, "Bad Request");
         return;
     }
 
     if (sscanf(line, "%s %s %s", method, uri, version) != 3) {
-        writeTo(fd, "HTTP/1.1 400 Bad Request\r\n");
-        writeTo(fd, "\r\n");
+        err_dump(fd, 400, "Bad Request");
         return;
     }
 
@@ -113,16 +158,12 @@ void doit(int fd)
         }
     }
 
-    if (strcmp(method, "GET") != 0) {
-        
+    if (strcmp(method, "GET") != 0) { 
+        err_dump(fd, 501, "No Method");
+        return;
     }
 
-    line = getFileContent(uri);
-
-    writeTo(fd, "HTTP/1.1 200 OK\r\n");
-    writeTo(fd, "\r\n");
-    writeTo(fd, line);
-
+    handleUri(fd, uri);
 }
 
 int main()
