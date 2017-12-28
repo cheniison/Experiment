@@ -1,11 +1,19 @@
-#include "uart.h"
-#include "frame.h"
-
+#include "myuart.h"
+#include "myframe.h"
+#include "mylight.h"
+#include "light.h"
 
 int color;
 int speed;
 
 
+void sleep(int t)
+{
+	int i;
+	for (i = 0; i < t; ++i) {
+
+	}
+}
 
 void dealFrame(const Frame * f)
 {
@@ -24,21 +32,21 @@ void dealFrame(const Frame * f)
 }
 
 
-/* 中断处理函数 */
+/* 涓柇澶勭悊鍑芥暟 */
 void handle()
 {
-    Frame f;        /* 帧 */
+    Frame f;        /* 甯�*/
 
-    /* 屏蔽部分中断 */
+    /* 灞忚斀閮ㄥ垎涓柇 */
     
 
-    /* 读入数据 */
+    /* 璇诲叆鏁版嵁 */
     recvFrame(&f);
 
-    /* 校验 */
+    /* 鏍￠獙 */
     verifyFrame(&f);
 
-    /* 处理帧并响应 */
+    /* 澶勭悊甯у苟鍝嶅簲 */
     dealFrame(&f);
 
     return;
@@ -48,16 +56,20 @@ void handle()
 int main()
 {
 
-    for (;;) {
-        /* 小灯闪烁 */ 
+	light_init(RUN_LIGHT_RED, LIGHT_ON);
+	light_init(RUN_LIGHT_BLUE, LIGHT_ON);
+	light_init(RUN_LIGHT_GREEN, LIGHT_ON);
 
-        /* 将灯置为亮 */
+    for (;;) {
+        /* 灏忕伅闂儊 */
+
+        /* 灏嗙伅缃负浜�*/
         setLight(color);
 
         /* sleep */
         sleep(speed);
 
-        /* 将所有灯置为暗 */
+        /* 灏嗘墍鏈夌伅缃负鏆�*/
         unsetLight(RED | BLUE | GREEN);
 
         /* sleep */

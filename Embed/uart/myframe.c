@@ -1,13 +1,13 @@
 
-#include "frame.h"
-#include "uart.h"
-
+#include "myframe.h"
+#include "myuart.h"
+#include <stdlib.h>
 
 void recvFrame(Frame * f)
 {
-    uint8_t ch;
-    uint8_t i;
-    uint8_t psw = 0;
+    uint_8 ch;
+    uint_8 i;
+    uint_8 psw = 0;
 
     /* 读入头部 */
     while((ch = readByte()) != HEADER[0])
@@ -25,7 +25,7 @@ void recvFrame(Frame * f)
     f->len = ch;
     psw ^= ch;
 
-    f->data = malloc(len * sizeof(uint8_t));
+    f->data = malloc(f->len * sizeof(uint_8));
 
     /* 读入数据 */
     for (i = 0; i < f->len; ++i) {
@@ -44,8 +44,8 @@ void recvFrame(Frame * f)
 
 void verifyFrame(Frame * f)
 {
-    uint8_t tmp = 0;
-    uint8_t i;
+    uint_8 tmp = 0;
+    uint_8 i;
 
     tmp ^= f->type;
     tmp ^= f->len;
