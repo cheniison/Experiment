@@ -71,6 +71,8 @@ int main(int argc, char **argv)
     len = fstatus.st_size;
     /* 存储映射 */
 	article = (char *)mmap(0, len, PROT_READ, MAP_PRIVATE, fin, 0);
+    /* 改变VMA标志 */
+    madvise((void *)article, len, MADV_SEQUENTIAL);
 
 	i = 0;
  	for (index = 0; index <= len; ++index) {
